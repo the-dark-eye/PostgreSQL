@@ -1,0 +1,842 @@
+nilesh@nilesh:~/Desktop/PostgreSQL$ sudo -u postgres psql
+psql (12.11 (Ubuntu 12.11-0ubuntu0.20.04.1))
+Type "help" for help.
+
+postgres=# \c test
+You are now connected to database "test" as user "postgres".
+test=# SELECT 1 = 1;
+ ?column? 
+----------
+ t
+(1 row)
+
+test=# SELECT 1 = 2;
+ ?column? 
+----------
+ f
+(1 row)
+
+test=# SELECT 1 < 2;
+ ?column? 
+----------
+ t
+(1 row)
+
+test=# SELECT 1 <= 2;
+ ?column? 
+----------
+ t
+(1 row)
+
+test=# SELECT 1 <= 1;
+ ?column? 
+----------
+ t
+(1 row)
+
+test=# SELECT 1 <= 1.0;
+ ?column? 
+----------
+ t
+(1 row)
+
+test=# SELECT 1 <= '1';
+ ?column? 
+----------
+ t
+(1 row)
+
+test=# SELECT 1 > '1';
+ ?column? 
+----------
+ f
+(1 row)
+
+test=# SELECT 1 <> '1';
+ ?column? 
+----------
+ f
+(1 row)
+
+test=# SELECT 1 <> '2';
+ ?column? 
+----------
+ t
+(1 row)
+
+test=# SELCT * FROM person LIMIT 10;
+ERROR:  syntax error at or near "SELCT"
+LINE 1: SELCT * FROM person LIMIT 10;
+        ^
+test=# SELECT * FROM person LIMIT 10;
+ id | first_name | last_name  | gender  | date_of_birth |            email             | country_of_birth 
+----+------------+------------+---------+---------------+------------------------------+------------------
+  1 | Glynn      | Copper     | Male    | 2007-07-16    | gcopper0@businessinsider.com | Guatemala
+  2 | Bucky      | Humphery   | Male    | 2004-11-30    | bhumphery1@usgs.gov          | United States
+  3 | Milt       | Vannoort   | Male    | 2009-02-14    | mvannoort2@msn.com           | Venezuela
+  4 | Son        | Kovalski   | Agender | 2008-11-25    | skovalski3@who.int           | China
+  5 | Nils       | Berrow     | Male    | 2007-05-09    | nberrow4@dyndns.org          | France
+  6 | Marlena    | Antoniades | Female  | 2012-10-07    | mantoniades5@icq.com         | China
+  7 | Dania      | Tomasz     | Female  | 2017-10-11    | dtomasz6@cyberchimps.com     | Portugal
+  8 | Giles      | Lansly     | Male    | 2022-04-20    |                              | China
+  9 | Junette    | Reinhard   | Female  | 2003-06-10    |                              | Brazil
+ 10 | Shoshana   | Petyankin  | Female  | 2019-04-16    |                              | China
+(10 rows)
+
+test=# SELECT * FROM person OFFSET 5 LIMIT 10;
+ id | first_name | last_name  | gender | date_of_birth |           email           | country_of_birth 
+----+------------+------------+--------+---------------+---------------------------+------------------
+  6 | Marlena    | Antoniades | Female | 2012-10-07    | mantoniades5@icq.com      | China
+  7 | Dania      | Tomasz     | Female | 2017-10-11    | dtomasz6@cyberchimps.com  | Portugal
+  8 | Giles      | Lansly     | Male   | 2022-04-20    |                           | China
+  9 | Junette    | Reinhard   | Female | 2003-06-10    |                           | Brazil
+ 10 | Shoshana   | Petyankin  | Female | 2019-04-16    |                           | China
+ 11 | Gerick     | Harbison   | Male   | 2013-04-14    | gharbisona@github.io      | China
+ 12 | Ange       | Oxherd     | Male   | 2021-06-23    | aoxherdb@wunderground.com | Japan
+ 13 | Dasha      | Ivancevic  | Female | 2006-07-10    | divancevicc@weibo.com     | Philippines
+ 14 | Amabel     | Thomel     | Female | 2016-03-13    | athomeld@gmpg.org         | Norway
+ 15 | Graham     | Slopier    | Male   | 2017-11-06    |                           | Ukraine
+(10 rows)
+
+test=# SELECT * FROM person OFFSET 5 FETCH 5 ROW ONLY;
+ERROR:  syntax error at or near "5"
+LINE 1: SELECT * FROM person OFFSET 5 FETCH 5 ROW ONLY;
+                                            ^
+test=# SELECT * FROM person OFFSET 5 FETCH FIRST 5 ROW ONLY;
+ id | first_name | last_name  | gender | date_of_birth |          email           | country_of_birth 
+----+------------+------------+--------+---------------+--------------------------+------------------
+  6 | Marlena    | Antoniades | Female | 2012-10-07    | mantoniades5@icq.com     | China
+  7 | Dania      | Tomasz     | Female | 2017-10-11    | dtomasz6@cyberchimps.com | Portugal
+  8 | Giles      | Lansly     | Male   | 2022-04-20    |                          | China
+  9 | Junette    | Reinhard   | Female | 2003-06-10    |                          | Brazil
+ 10 | Shoshana   | Petyankin  | Female | 2019-04-16    |                          | China
+(5 rows)
+
+test=# SELECT * FROM person WHERE country_of_birth IN ('China', 'Brazil', 'France');
+test=# SELECT * FROM person WHERE country_of_birth IN ('China', 'Brazil', 'France')
+test-# ORDER BY country_of_birth
+test-# ;
+test=# SELECT * FROM person WHERE date_of_birth BETWEEN DATE '2000-01-01' AND '2002-01-01';
+test=# SELECT * FROM person WHERE email LIKE '%.com';
+test=# SELECT * FROM person WHERE email LIKE '%google.';
+ id | first_name | last_name | gender | date_of_birth | email | country_of_birth 
+----+------------+-----------+--------+---------------+-------+------------------
+(0 rows)
+
+test=# SELECT * FROM person WHERE email LIKE '%@google.';
+ id | first_name | last_name | gender | date_of_birth | email | country_of_birth 
+----+------------+-----------+--------+---------------+-------+------------------
+(0 rows)
+
+test=# SELECT * FROM person WHERE email LIKE '%@google.%';
+ id  | first_name | last_name |   gender   | date_of_birth |           email           |  country_of_birth  
+-----+------------+-----------+------------+---------------+---------------------------+--------------------
+  17 | Ludvig     | Ludgrove  | Male       | 2013-05-24    | lludgroveh@google.pl      | Malaysia
+  96 | Marielle   | Hadland   | Female     | 2006-11-05    | mhadland2s@google.nl      | China
+ 109 | Baily      | Altofts   | Male       | 2007-09-05    | baltofts36@google.com.br  | Mexico
+ 166 | Bernie     | Romaine   | Female     | 2008-11-19    | bromaine4t@google.com     | China
+ 197 | Cornelius  | Waind     | Male       | 2000-07-23    | cwaind5q@google.de        | Zambia
+ 365 | Frederique | Unsworth  | Female     | 2005-02-11    | funsworthak@google.co.uk  | China
+ 420 | Desirae    | Palmby    | Female     | 2000-05-25    | dpalmbyc7@google.nl       | China
+ 465 | Barb       | Trudgion  | Female     | 2007-04-17    | btrudgiondg@google.de     | Argentina
+ 528 | Humfrid    | Lorraine  | Male       | 2002-10-23    | hlorrainef7@google.cn     | Argentina
+ 537 | Rozanna    | Domange   | Female     | 2002-09-19    | rdomangefg@google.es      | France
+ 545 | Netti      | Eul       | Female     | 2018-12-01    | neulfo@google.ca          | Sweden
+ 583 | Sapphira   | Henrique  | Female     | 2014-06-08    | shenriquegq@google.pl     | China
+ 620 | Dorie      | Balfour   | Female     | 2017-12-14    | dbalfourhu@google.com.au  | Canada
+ 685 | Liesa      | Hembrow   | Female     | 2006-11-01    | lhembrowjr@google.fr      | China
+ 709 | Foster     | Bleckly   | Agender    | 2011-10-05    | fblecklykf@google.es      | Indonesia
+ 724 | Arlie      | Kilfoyle  | Female     | 2015-01-06    | akilfoyleku@google.ru     | China
+ 729 | Charlean   | Drysdale  | Female     | 2019-03-23    | cdrysdalekz@google.com.br | Dominican Republic
+ 795 | Rebecca    | Shuker    | Female     | 2021-08-11    | rshukermt@google.nl       | Russia
+ 824 | Marlene    | Matteau   | Polygender | 2002-12-17    | mmatteaunn@google.es      | Russia
+ 885 | Torrin     | Phillott  | Male       | 2003-08-16    | tphillottpd@google.es     | China
+ 910 | Jeth       | Bather    | Male       | 2003-03-12    | jbatherq3@google.com.br   | China
+(21 rows)
+
+test=# SELECT * FROM person WHERE email LIKE '______@%';
+ id  | first_name | last_name |  gender  | date_of_birth |          email          | country_of_birth 
+-----+------------+-----------+----------+---------------+-------------------------+------------------
+  16 | Clarisse   | Esch      | Female   | 2000-04-01    | ceschg@chronoengine.com | Indonesia
+ 139 | Lavinie    | Bon       | Female   | 2014-07-24    | lbon41@samsung.com      | Ukraine
+ 314 | Pammie     | Arr       | Female   | 2016-12-02    | parr93@ning.com         | Colombia
+ 391 | Annabal    | Oke       | Female   | 2008-07-22    | aokebe@chronoengine.com | China
+ 545 | Netti      | Eul       | Female   | 2018-12-01    | neulfo@google.ca        | Sweden
+ 558 | Maurizia   | Gye       | Female   | 2015-02-23    | mgyeg1@nbcnews.com      | China
+ 669 | Daffy      | Ely       | Female   | 2018-03-27    | delyjb@nifty.com        | Iran
+ 831 | Remus      | Dri       | Bigender | 2013-07-24    | rdrinu@booking.com      | China
+ 942 | Noland     | Wem       | Male     | 2002-12-12    | nwemr0@bigcartel.com    | Argentina
+(9 rows)
+
+test=# SELECT * FROM person WHERE country_of_birth LIKE 'a%';
+ id | first_name | last_name | gender | date_of_birth | email | country_of_birth 
+----+------------+-----------+--------+---------------+-------+------------------
+(0 rows)
+
+test=# SELECT * FROM person WHERE country_of_birth LIKE 'A%';
+test=# SELECT * FROM person WHERE country_of_birth ILIKE 'a%';
+
+test=# SELECT DISTINCE country_of_birth FROM person
+test-# ;
+ERROR:  column "distince" does not exist
+LINE 1: SELECT DISTINCE country_of_birth FROM person
+               ^
+test=# SELECT DISTINCT country_of_birth FROM person
+;
+test=# SELECT DISTINCT country_of_birth FROM person GROUP BY country_of_birth;
+test=# SELECT DISTINCT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth;
+test=# SELECT DISTINCT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth ORDER BY counrty_of_birth;
+ERROR:  column "counrty_of_birth" does not exist
+LINE 1: ...*) FROM person GROUP BY country_of_birth ORDER BY counrty_of...
+                                                             ^
+HINT:  Perhaps you meant to reference the column "person.country_of_birth".
+test=# SELECT DISTINCT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth ORDER BY country_of_birth;
+test=# SELECT DISTINCT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth HAVING COUNT(*) >= 5 ORDER BY country_of_birth;
+test=# SELECT DISTINCT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth HAVING COUNT(*) >= 40 ORDER BY country_of_birth;
+ country_of_birth | count 
+------------------+-------
+ Brazil           |    42
+ China            |   190
+ Indonesia        |    86
+ Philippines      |    48
+ Russia           |    47
+(5 rows)
+
+test=# \i /home/nilesh/Desktop/PostgreSQL/car.sql
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+test=# \d
+              List of relations
+ Schema |     Name      |   Type   |  Owner   
+--------+---------------+----------+----------
+ public | car           | table    | postgres
+ public | person        | table    | postgres
+ public | person_id_seq | sequence | postgres
+(3 rows)
+
+test=# DROP TABLE car
+test-# ;
+DROP TABLE
+test=# \i /home/nilesh/Desktop/PostgreSQL/car.sql
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+test=# \d
+              List of relations
+ Schema |     Name      |   Type   |  Owner   
+--------+---------------+----------+----------
+ public | car           | table    | postgres
+ public | car_id_seq    | sequence | postgres
+ public | person        | table    | postgres
+ public | person_id_seq | sequence | postgres
+(4 rows)
+
+test=# \d car
+                                   Table "public.car"
+ Column |         Type          | Collation | Nullable |             Default             
+--------+-----------------------+-----------+----------+---------------------------------
+ id     | bigint                |           | not null | nextval('car_id_seq'::regclass)
+ make   | character varying(50) |           | not null | 
+ model  | character varying(50) |           | not null | 
+ price  | character varying(50) |           |          | 
+Indexes:
+    "car_pkey" PRIMARY KEY, btree (id)
+
+test=# 
