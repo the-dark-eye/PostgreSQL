@@ -1,0 +1,235 @@
+test=# SELECT COALESCE(null, 1, 10);
+ coalesce 
+----------
+        1
+(1 row)
+
+test=# SELECT email from person
+test-# ;
+test=# SELECT COLESCE(email) from person;
+ERROR:  function colesce(character varying) does not exist
+LINE 1: SELECT COLESCE(email) from person;
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+test=# SELECT COALESCE(email) from person;
+test=# SELECT COALESCE(email, 'NAN') from person;
+
+test=# SELECT 10/0;
+ERROR:  division by zero
+test=# SELECT NULLIF(10, 10);
+ nullif 
+--------
+       
+(1 row)
+
+test=# SELECT NULLIF(10, 1);
+ nullif 
+--------
+     10
+(1 row)
+
+test=# SELECT NOW();
+               now                
+----------------------------------
+ 2022-06-07 17:49:55.038709+05:30
+(1 row)
+
+test=# SELECT NOW()::DATE;
+    now     
+------------
+ 2022-06-07
+(1 row)
+
+test=# SELECT NOW()::TIME;
+       now       
+-----------------
+ 17:50:10.517153
+(1 row)
+
+test=# \d person
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ gender           | character varying(10)  |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ email            | character varying(100) |           |          | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+
+test=# SELECT NOW() - INTERVAL '1 YEAR';
+             ?column?             
+----------------------------------
+ 2021-06-07 17:51:11.430902+05:30
+(1 row)
+
+test=# SELECT NOW() - INTERVAL '1 HOUR';
+             ?column?             
+----------------------------------
+ 2022-06-07 16:51:19.998707+05:30
+(1 row)
+
+test=# SELECT EXTRACT(YEAR FROM NOW());
+ date_part 
+-----------
+      2022
+(1 row)
+
+test=# SELECT first_name, lasat_name, gender, country_of_birth, date_of_birth from person;
+ERROR:  column "lasat_name" does not exist
+LINE 1: SELECT first_name, lasat_name, gender, country_of_birth, dat...
+                           ^
+HINT:  Perhaps you meant to reference the column "person.last_name".
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth from person;
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth, AGE(NOW(), date_of_birth) FROM person;
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth, EXTRACT(YEAR FROM AGE(NOW(), date_of_birth)) FROM person;
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth, EXTRACT((YEAR, MONTHS) FROM AGE(NOW(), date_of_birth)) FROM person;
+ERROR:  syntax error at or near "("
+LINE 1: ... gender, country_of_birth, date_of_birth, EXTRACT((YEAR, MON...
+                                                             ^
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth, EXTRACT(YEAR, MONTHS FROM AGE(NOW(), date_of_birth)) FROM person;
+ERROR:  syntax error at or near ","
+LINE 1: ...der, country_of_birth, date_of_birth, EXTRACT(YEAR, MONTHS F...
+                                                             ^
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth, EXTRACT(YEAR AND MONTHS FROM AGE(NOW(), date_of_birth)) FROM person;
+ERROR:  syntax error at or near "AND"
+LINE 1: ...er, country_of_birth, date_of_birth, EXTRACT(YEAR AND MONTHS...
+                                                             ^
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth, EXTRACT(DATE FROM AGE(NOW(), date_of_birth)) FROM person;
+ERROR:  interval units "date" not recognized
+test=# SELECT first_name, last_name, gender, country_of_birth, date_of_birth, EXTRACT(MONTH FROM AGE(NOW(), date_of_birth)) FROM person;
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ gender           | character varying(10)  |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ email            | character varying(100) |           |          | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+
+test=# SELECT * FROM person LIMIT 1;
+ id | first_name | last_name | gender | date_of_birth |            email             | country_of_birth 
+----+------------+-----------+--------+---------------+------------------------------+------------------
+  1 | Glynn      | Copper    | Male   | 2007-07-16    | gcopper0@businessinsider.com | Guatemala
+(1 row)
+
+test=# insert into person (id, first_name, last_name, gender, date_of_birth, email, country_of_birth) values (1, 'Glynn', 'Copper', 'Male', '2007-07-16', 'gcopper0@businessinsider.com', 'Guatemala');
+ERROR:  duplicate key value violates unique constraint "person_pkey"
+DETAIL:  Key (id)=(1) already exists.
+test=# ALTER TABLE person DROP CONSTRAINT person_pkey;
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ gender           | character varying(10)  |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ email            | character varying(100) |           |          | 
+ country_of_birth | character varying(50)  |           | not null | 
+
+test=# insert into person (id, first_name, last_name, gender, date_of_birth, email, country_of_birth) values (1, 'Glynn', 'Copper', 'Male', '2007-07-16', 'gcopper0@businessinsider.com', 'Guatemala');
+INSERT 0 1
+test=# SELECT * FROM person WHERE id = 1;
+ id | first_name | last_name | gender | date_of_birth |            email             | country_of_birth 
+----+------------+-----------+--------+---------------+------------------------------+------------------
+  1 | Glynn      | Copper    | Male   | 2007-07-16    | gcopper0@businessinsider.com | Guatemala
+  1 | Glynn      | Copper    | Male   | 2007-07-16    | gcopper0@businessinsider.com | Guatemala
+(2 rows)
+
+test=# ALTER TABLE person ADD PRIMARY KEY (id);
+ERROR:  could not create unique index "person_pkey"
+DETAIL:  Key (id)=(1) is duplicated.
+test=# DELETE FROM person WHERE id = 1;
+DELETE 2
+test=# ALTER TABLE person ADD PRIMARY KEY (id);
+ALTER TABLE
+test=# SELECT email, COUNT(*) FROM person GROUP BY email;
+test=# ALTER TABLE person ADD CONSTRAINT unique_email_address UNIQUE (email);
+ALTER TABLE
+test=# \d person
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ gender           | character varying(10)  |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ email            | character varying(100) |           |          | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+    "unique_email_address" UNIQUE CONSTRAINT, btree (email)
+
+test=# ALTER TABLE person DROP CONSTRAIN unique_email;
+ERROR:  syntax error at or near "unique_email"
+LINE 1: ALTER TABLE person DROP CONSTRAIN unique_email;
+                                          ^
+test=# ALTER TABLE person DROP CONSTRAINT unique_email;
+ERROR:  constraint "unique_email" of relation "person" does not exist
+test=# ALTER TABLE person DROP CONSTRAINT 'unique_email_address';
+ERROR:  syntax error at or near "'unique_email_address'"
+LINE 1: ALTER TABLE person DROP CONSTRAINT 'unique_email_address';
+                                           ^
+test=# ALTER TABLE person DROP CONSTRAINT unique_email_address;
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ gender           | character varying(10)  |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ email            | character varying(100) |           |          | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+
+test=# SELECT UNIQUE gender FROM person;
+ERROR:  syntax error at or near "gender"
+LINE 1: SELECT UNIQUE gender FROM person;
+                      ^
+test=# SELECT UNIQUE Gender FROM person;
+ERROR:  syntax error at or near "Gender"
+LINE 1: SELECT UNIQUE Gender FROM person;
+                      ^
+test=# SELECT DISTINCT Gender FROM person;
+   gender   
+------------
+ Bigender
+ Male
+ Non-binary
+ Polygender
+ Female
+ Agender
+(6 rows)
+
+test=# ALTER TAABLE person ADD CONSTRAINT gender_constraint CHECK (gender = 'Female OR gender = 'Male');
+test'# ALTER TABLE person ADD CONSTRAINT gender_constraint CHECK (gender = 'Female OR gender = 'Male');
+ERROR:  syntax error at or near "TAABLE"
+LINE 1: ALTER TAABLE person ADD CONSTRAINT gender_constraint CHECK (...
+              ^
+test=#                                                                                                  
+ALTER TABLE person ADD CONSTRAINT gender_constraint CHECK (gender = 'Female OR gender = 'Male');
+test'# 
+test'# ;
+test'# ALTER TABLE person ADD CONSTRAINT gender_constraint CHECK (gender = 'Female OR gender = 'Male');
+ERROR:  syntax error at or near "Male"
+LINE 1: ...nder_constraint CHECK (gender = 'Female OR gender = 'Male');
+                                                                ^
+test=# 
+ALTER TABLE person ADD CONSTRAINT gender_constraint CHECK (gender = 'Female OR gender = 'Male');
+

@@ -839,4 +839,133 @@ test=# \d car
 Indexes:
     "car_pkey" PRIMARY KEY, btree (id)
 
+test=# SELECT * FROM car FETCH FIRST 10 ROWS ONLY;
+ id |     make     |   model    |   price   
+----+--------------+------------+-----------
+  1 | Eagle        | Summit     | $21874.74
+  2 | Subaru       | Justy      | $16532.63
+  3 | Chevrolet    | Avalanche  | $19972.12
+  4 | Audi         | S8         | $22760.11
+  5 | Volkswagen   | Cabriolet  | $3827.01
+  6 | Plymouth     | Sundance   | $27121.24
+  7 | Ford         | Taurus     | $28352.39
+  8 | Aston Martin | V8 Vantage | $8444.62
+  9 | Oldsmobile   | Bravada    | $28903.19
+ 10 | Pontiac      | Grand Prix | $11823.83
+(10 rows)
+
+test=# SELECT MAX(price) FROM car;\
+   max    
+----------
+ $9768.74
+(1 row)
+
+invalid command \
+Try \? for help.
+test=# SELECT MAX(price) FROM car;
+   max    
+----------
+ $9768.74
+(1 row)
+
+test=# SELECT MIN(price) FROM car;
+    min    
+-----------
+ $10147.31
+(1 row)
+
+test=# SELECT AVG(price) FROM car;
+ERROR:  function avg(character varying) does not exist
+LINE 1: SELECT AVG(price) FROM car;
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+test=# SELECT AVERAGE(price) FROM car;
+ERROR:  function average(character varying) does not exist
+LINE 1: SELECT AVERAGE(price) FROM car;
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+test=# ALTER TABLE test ALTER COLUMN price TYPE money;
+ERROR:  relation "test" does not exist
+test=# ALTER COLUMN price TYPE money;
+ERROR:  syntax error at or near "COLUMN"
+LINE 1: ALTER COLUMN price TYPE money;
+              ^
+test=# ALTER COLUMN price TYPE money;
+ERROR:  syntax error at or near "COLUMN"
+LINE 1: ALTER COLUMN price TYPE money;
+              ^
+test=# \d car
+                                   Table "public.car"
+ Column |         Type          | Collation | Nullable |             Default             
+--------+-----------------------+-----------+----------+---------------------------------
+ id     | bigint                |           | not null | nextval('car_id_seq'::regclass)
+ make   | character varying(50) |           | not null | 
+ model  | character varying(50) |           | not null | 
+ price  | character varying(50) |           |          | 
+Indexes:
+    "car_pkey" PRIMARY KEY, btree (id)
+
+test=# ALTER TABLE car ALTER COLUMN price TYPE money;
+ERROR:  column "price" cannot be cast automatically to type money
+HINT:  You might need to specify "USING price::money".
+test=# SELECT AVG(price) FROM car;
+ERROR:  function avg(character varying) does not exist
+LINE 1: SELECT AVG(price) FROM car;
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+test=# SELECT AVG(price) FROM car USING price::money;
+ERROR:  syntax error at or near "USING"
+LINE 1: SELECT AVG(price) FROM car USING price::money;
+                                   ^
+test=# ALTER TABLE car ALTER COLUMN price TYPE int;
+ERROR:  column "price" cannot be cast automatically to type integer
+HINT:  You might need to specify "USING price::integer".
+test=# SELECT make, model, MIN(price) FROM car GROUP BY make, model;
+test=# SELECT make, MIN(price) FROM car GROUP BY make, model;
+test=# SELECT make, MIN(price) FROM car GROUP BY make;
+test=# SELECT SUM(price) FROM car;
+ERROR:  function sum(character varying) does not exist
+LINE 1: SELECT SUM(price) FROM car;
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+test=# SELECT SUM(price) FROM car USING price::money;
+ERROR:  syntax error at or near "USING"
+LINE 1: SELECT SUM(price) FROM car USING price::money;
+                                   ^
+test=# ;
 test=# 
+test=# ALTER TABLE car ALTER COLUMN price TYPE int USING price::money;
+ERROR:  result of USING clause for column "price" cannot be cast automatically to type integer
+HINT:  You might need to add an explicit cast.
+test=# ALTER TABLE car ALTER COLUMN price TYPE int USING price::integer;
+ERROR:  invalid input syntax for type integer: "$21874.74"
+test=# ALTER TABLE car ALTER COLUMN price TYPE int USING price::float;
+ERROR:  invalid input syntax for type double precision: "$21874.74"
+test=# ALTER TABLE car ALTER COLUMN price TYPE int USING (ROUND(price)::integer);
+ERROR:  function round(character varying) does not exist
+LINE 1: ...LTER TABLE car ALTER COLUMN price TYPE int USING (ROUND(pric...
+                                                             ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+test=# ALTER TABLE car ALTER COLUMN price TYPE int USING (trim(price)::integer);
+ERROR:  invalid input syntax for type integer: "$21874.74"
+test=# ALTER TABLE car ALTER COLUMN price TYPE money USING (trim(price)::money);
+ERROR:  invalid input syntax for type money: "$21874.74"
+test=# ALTER TABLE car ALTER COLUMN price TYPE decimal USING (trim(price)::decimal);
+ERROR:  invalid input syntax for type numeric: "$21874.74"
+test=# ALTER TABLE car ALTER COLUMN price TYPE decimal USING (replace(price, '$', '')::decimal);
+ALTER TABLE
+test=# SELECT price from car;
+
+test=# SELECT 10+2;
+ ?column? 
+----------
+       12
+(1 row)
+
+test=# SELECT * FROM car
+test-# ;
+test=# SELECT id, make, model, price, price*.10 FROM car;
+test=# SELECT id, make, model, price, ROUND(price*.10,2) FROM car;
+test=# SELECT id, make, model, price, ROUND(price*.10,2), ROUND(price - (price*0.10)) FROM car;
+test=# SELECT id, make, model, price, ROUND(price*.10,2) AS ten_percent, ROUND(price - (price*0.10)) as discount FROM car;
+
