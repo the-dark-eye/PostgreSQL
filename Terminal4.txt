@@ -1,0 +1,14 @@
+test=# \dt
+         List of relations
+ Schema |  Name  | Type  |  Owner   
+--------+--------+-------+----------
+ public | car    | table | postgres
+ public | person | table | postgres
+(2 rows)
+
+test=# DROP TABLE person;
+DROP TABLE
+test=# DROP TABLE car;
+DROP TABLE
+test=# \dt
+Did not find any relations.

@@ -2,7 +2,7 @@ create table person (
 	id BIGSERIAL not null primary key,
 	first_name VARCHAR(50) not null,
 	last_name VARCHAR(50) not null,
-	gender VARCHAR(10) not null,
+	gender VARCHAR(15) not null,
 	date_of_birth DATE not null,
 	email VARCHAR(100),
 	country_of_birth VARCHAR(50) not null
